@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+    height: 100%;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#__next {
+    height: 100%;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+*::selection {
+    background-color: #4392f1;
+    color: white;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+ul,
+ol,
+li,
+p,
+pre,
+blockquote,
+figure,
+hr {
+    margin: 0;
+    padding: 0;
+}
+
+ul {
+    list-style: none;
+}
+
+input,
+textarea,
+select,
+button {
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+}
+
+input,
+textarea,
+button {
+    border: 1px solid gray;
+}
+
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+    display: block;
+    max-width: 100%;
+}
+
+table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+noscript {
+    display: block;
+    margin-bottom: 1em;
+    margin-top: 1em;
+}
+
+svg {
+    fill: currentColor;
+    stroke: currentColor;
+}
