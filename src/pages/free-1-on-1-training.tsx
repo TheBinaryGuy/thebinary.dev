@@ -3,8 +3,8 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { Dispatch, SetStateAction, useState } from 'react';
 
-const FreeOneToOne = () => {
-    const [title, setTitle] = useState('Free 1 to 1 Training | TheBinaryGuy');
+const FreeOneOnOneTraining = () => {
+    const [title, setTitle] = useState('Free 1 on 1 Training | TheBinaryGuy');
     const [alertColor, setAlertColor] = useState<string | undefined>();
     const [alertMessage, setAlertMessage] = useState<string | undefined>();
     const [showAlert, setShowAlert] = useState(false);
@@ -240,4 +240,4 @@ const FreeOneToOne = () => {
     );
 };
 
-export default FreeOneToOne;
+export default FreeOneOnOneTraining;
