@@ -12,7 +12,7 @@ const Index = () => {
                 <title>{title}</title>
             </Head>
             <Layout>
-                <h1 className='h-full grid place-items-center'>
+                <h1 className='h-full grid place-items-center text-4xl font-bold'>
                     Hello, world!
                 </h1>
             </Layout>
