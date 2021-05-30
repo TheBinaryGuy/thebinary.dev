@@ -38,7 +38,7 @@ const App = ({ Component, pageProps }: AppProps) => {
                 <meta property='og:url' content='https://thebinary.dev' />
                 <meta
                     property='og:image'
-                    content='https://thebinary.dev/favicon.png'
+                    content='https://thebinary.dev/tbg.jpg'
                 />
 
                 <meta name='twitter:card' content='summary' />
