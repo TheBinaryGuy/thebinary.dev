@@ -3,16 +3,48 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { Dispatch, SetStateAction, useState } from 'react';
 
+type TimePrefs = 'Morning' | 'Afternoon' | 'Evening';
+
+interface FormData {
+    email: string;
+    phone?: string;
+    firstName: string;
+    lastName: string;
+    timePref: TimePrefs;
+}
+
+export type AlertColors =
+    | 'gray'
+    | 'red'
+    | 'orange'
+    | 'yellow'
+    | 'green'
+    | 'teal'
+    | 'blue'
+    | 'indigo'
+    | 'purple'
+    | 'pink';
+
+interface AlertData {
+    showAlert: boolean;
+    alertMessage: string;
+    alertColor: AlertColors;
+}
+
 const FreeOneOnOneTraining = () => {
     const [title, setTitle] = useState('Free 1 on 1 Training | TheBinaryGuy');
-    const [alertColor, setAlertColor] = useState<string | undefined>();
-    const [alertMessage, setAlertMessage] = useState<string | undefined>();
-    const [showAlert, setShowAlert] = useState(false);
-    const [email, setEmail] = useState<string | undefined>();
-    const [phone, setPhone] = useState<string | undefined>();
-    const [firstName, setFirstName] = useState<string | undefined>();
-    const [lastName, setLastName] = useState<string | undefined>();
-    const [timePref, setTimePref] = useState<string | undefined>('Morning');
+    const [alertdata, setAlertData] = useState<AlertData>({
+        showAlert: false,
+        alertMessage: '',
+        alertColor: 'red'
+    });
+    const [formData, setFormData] = useState<FormData>({
+        email: '',
+        phone: '',
+        firstName: '',
+        lastName: '',
+        timePref: 'Morning'
+    });
 
     const handleQuery = async (e: React.SyntheticEvent) => {
         e.preventDefault();
@@ -21,38 +53,38 @@ const FreeOneOnOneTraining = () => {
                 method: 'POST',
                 body: JSON.stringify({
                     queryFor: 'Free One To One Training',
-                    email,
-                    firstName,
-                    lastName,
+                    email: formData.email,
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
                     queryDetails: {
-                        phone,
-                        timePref
+                        phone: formData.phone,
+                        timePref: formData.timePref
                     }
                 })
             });
 
             if (!resp.ok) {
-                setAlertColor('red');
-                setAlertMessage(
-                    'Something went wrong! Please try again later.'
-                );
+                setAlertData({
+                    showAlert: true,
+                    alertMessage:
+                        'Something went wrong! Please try again later.',
+                    alertColor: 'red'
+                });
             } else {
-                setAlertColor('green');
-                setAlertMessage(
-                    "Thank you for your interest, I'll get back to you shortly!"
-                );
+                setAlertData({
+                    showAlert: true,
+                    alertMessage:
+                        "Thank you for your interest, I'll get back to you shortly!",
+                    alertColor: 'green'
+                });
             }
         } catch {
-            setAlertColor('red');
-            setAlertMessage('Something went wrong!');
+            setAlertData({
+                showAlert: true,
+                alertMessage: 'Something went wrong!',
+                alertColor: 'red'
+            });
         }
-        setShowAlert(true);
-        return;
-        console.log(email);
-        console.log(phone);
-        console.log(firstName);
-        console.log(lastName);
-        console.log(timePref);
     };
 
     const changeState = <T extends unknown>(
@@ -93,20 +125,20 @@ const FreeOneOnOneTraining = () => {
                             </div>
                         </div>
 
-                        {showAlert && (
+                        {alertdata.showAlert && (
                             <div
-                                className={`text-sm text-${alertColor}-600 border border-${alertColor}-400 h-12 flex items-center p-4 rounded-sm relative mt-5 mx-7`}
+                                className={`text-sm text-${alertdata.alertColor}-600 border border-${alertdata.alertColor}-400 h-12 flex items-center p-4 rounded-sm relative mt-5 mx-7`}
                                 role='alert'>
-                                {alertMessage}
+                                {alertdata.alertMessage}
                                 <button
                                     type='button'
                                     data-dismiss='alert'
                                     aria-label='Close'
                                     onClick={() =>
-                                        changeState<boolean>(
-                                            setShowAlert,
-                                            false
-                                        )
+                                        setAlertData((prevAlertData) => ({
+                                            ...prevAlertData,
+                                            showAlert: false
+                                        }))
                                     }>
                                     <span
                                         className='absolute top-0 bottom-0 right-0 text-2xl px-3 py-1 hover:text-red-900'
@@ -129,12 +161,12 @@ const FreeOneOnOneTraining = () => {
                                 type='email'
                                 placeholder='Email'
                                 name='email'
-                                value={email}
+                                value={formData.email}
                                 onChange={(e) =>
-                                    changeState<string | undefined>(
-                                        setEmail,
-                                        e.target.value
-                                    )
+                                    setFormData((prevFormData) => ({
+                                        ...prevFormData,
+                                        email: e.target.value as TimePrefs
+                                    }))
                                 }
                             />
                         </div>
@@ -150,12 +182,12 @@ const FreeOneOnOneTraining = () => {
                                 type='phone'
                                 placeholder='Phone Number'
                                 name='phone'
-                                value={phone}
+                                value={formData.phone}
                                 onChange={(e) =>
-                                    changeState<string | undefined>(
-                                        setPhone,
-                                        e.target.value
-                                    )
+                                    setFormData((prevFormData) => ({
+                                        ...prevFormData,
+                                        phone: e.target.value as TimePrefs
+                                    }))
                                 }
                             />
                         </div>
@@ -173,12 +205,13 @@ const FreeOneOnOneTraining = () => {
                                     type='text'
                                     placeholder='First Name'
                                     name='firstName'
-                                    value={firstName}
+                                    value={formData.firstName}
                                     onChange={(e) =>
-                                        changeState<string | undefined>(
-                                            setFirstName,
-                                            e.target.value
-                                        )
+                                        setFormData((prevFormData) => ({
+                                            ...prevFormData,
+                                            firstName: e.target
+                                                .value as TimePrefs
+                                        }))
                                     }
                                 />
                             </div>
@@ -193,12 +226,13 @@ const FreeOneOnOneTraining = () => {
                                     type='text'
                                     placeholder='First Name'
                                     name='lastName'
-                                    value={lastName}
+                                    value={formData.lastName}
                                     onChange={(e) =>
-                                        changeState<string | undefined>(
-                                            setLastName,
-                                            e.target.value
-                                        )
+                                        setFormData((prevFormData) => ({
+                                            ...prevFormData,
+                                            lastName: e.target
+                                                .value as TimePrefs
+                                        }))
                                     }
                                 />
                             </div>
@@ -213,12 +247,12 @@ const FreeOneOnOneTraining = () => {
                             <select
                                 name='timePref'
                                 className='py-2 px-3 rounded-lg border-2 border-purple-300 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent'
-                                value={timePref}
+                                value={formData.timePref}
                                 onChange={(e) =>
-                                    changeState<string | undefined>(
-                                        setTimePref,
-                                        e.target.value
-                                    )
+                                    setFormData((prevFormData) => ({
+                                        ...prevFormData,
+                                        timePref: e.target.value as TimePrefs
+                                    }))
                                 }>
                                 <option value='Morning'>Morning</option>
                                 <option value='Afternoon'>Afternoon</option>
