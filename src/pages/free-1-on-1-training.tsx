@@ -33,6 +33,7 @@ interface AlertData {
 
 const FreeOneOnOneTraining = () => {
     const [title, setTitle] = useState('Free 1 on 1 Training | TheBinaryGuy');
+    const [showSpinner, setShowSpinner] = useState(false);
     const [alertdata, setAlertData] = useState<AlertData>({
         showAlert: false,
         alertMessage: '',
@@ -47,6 +48,7 @@ const FreeOneOnOneTraining = () => {
     });
 
     const handleQuery = async (e: React.SyntheticEvent) => {
+        setShowSpinner(true);
         e.preventDefault();
         try {
             const resp = await fetch('/api/query', {
@@ -84,6 +86,8 @@ const FreeOneOnOneTraining = () => {
                 alertMessage: 'Something went wrong!',
                 alertColor: 'red'
             });
+        } finally {
+            setShowSpinner(false);
         }
     };
 
@@ -127,7 +131,7 @@ const FreeOneOnOneTraining = () => {
 
                         {alertdata.showAlert && (
                             <div
-                                className={`text-sm text-${alertdata.alertColor}-600 border border-${alertdata.alertColor}-400 h-12 flex items-center p-4 rounded-sm relative mt-5 mx-7`}
+                                className={`text-sm text-${alertdata.alertColor.toString()}-600 border border-${alertdata.alertColor.toString()}-400 h-12 flex items-center p-4 rounded-sm relative mt-5 mx-7`}
                                 role='alert'>
                                 {alertdata.alertMessage}
                                 <button
@@ -261,9 +265,21 @@ const FreeOneOnOneTraining = () => {
                         </div>
 
                         <div className='grid grid-cols-1 mx-7 md:gap-8 gap-4 pt-5 pb-5'>
+                            {showSpinner && (
+                                <div className='place-self-center'>
+                                    <div
+                                        style={{
+                                            borderTopColor: 'transparent'
+                                        }}
+                                        className='border-solid animate-spin rounded-full border-purple-400 border-8 h-10 w-10'></div>
+                                </div>
+                            )}
                             <button
                                 type='submit'
-                                className='w-auto bg-purple-500 hover:bg-purple-700 rounded-lg shadow-xl font-medium text-white px-4 py-2'>
+                                disabled={showSpinner}
+                                className={`w-auto bg-purple-500 hover:bg-purple-700 rounded-lg shadow-xl font-medium text-white px-4 py-2 ${
+                                    showSpinner ? 'cursor-not-allowed' : ''
+                                } disabled:opacity-50`}>
                                 Send
                             </button>
                         </div>

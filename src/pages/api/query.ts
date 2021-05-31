@@ -1,14 +1,14 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import nodemailer from 'nodemailer';
 
-export default (req: NextApiRequest, res: NextApiResponse) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method == 'POST') {
         try {
             console.log(req.body);
             const { queryFor, email, firstName, lastName, queryDetails } =
                 JSON.parse(req.body);
             const transporter = nodemailer.createTransport({
-                service: 'Gmail',
+                service: 'gmail',
                 auth: {
                     user: process.env.SMTP_GMAIL_USERNAME,
                     pass: process.env.SMTP_GMAIL_APP_PASSWORD
@@ -30,7 +30,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
                 to: process.env.SMTP_GMAIL_USERNAME,
                 from: process.env.SMTP_GMAIL_USERNAME
             };
-            transporter.sendMail(messageOptions);
+            await transporter.sendMail(messageOptions);
             res.status(200).send({});
         } catch {
             res.status(500);
