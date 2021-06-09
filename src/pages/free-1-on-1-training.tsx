@@ -169,7 +169,7 @@ const FreeOneOnOneTraining = () => {
                                 onChange={(e) =>
                                     setFormData((prevFormData) => ({
                                         ...prevFormData,
-                                        email: e.target.value as TimePrefs
+                                        email: e.target.value
                                     }))
                                 }
                             />
@@ -190,7 +190,7 @@ const FreeOneOnOneTraining = () => {
                                 onChange={(e) =>
                                     setFormData((prevFormData) => ({
                                         ...prevFormData,
-                                        phone: e.target.value as TimePrefs
+                                        phone: e.target.value
                                     }))
                                 }
                             />
@@ -213,8 +213,7 @@ const FreeOneOnOneTraining = () => {
                                     onChange={(e) =>
                                         setFormData((prevFormData) => ({
                                             ...prevFormData,
-                                            firstName: e.target
-                                                .value as TimePrefs
+                                            firstName: e.target.value
                                         }))
                                     }
                                 />
@@ -234,8 +233,7 @@ const FreeOneOnOneTraining = () => {
                                     onChange={(e) =>
                                         setFormData((prevFormData) => ({
                                             ...prevFormData,
-                                            lastName: e.target
-                                                .value as TimePrefs
+                                            lastName: e.target.value
                                         }))
                                     }
                                 />
