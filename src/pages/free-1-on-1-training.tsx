@@ -186,7 +186,7 @@ const FreeOneOnOneTraining = () => {
                                 type='phone'
                                 placeholder='Phone Number'
                                 name='phone'
-                                value={formData.phone}
+                                value={formData.phone ?? ''}
                                 onChange={(e) =>
                                     setFormData((prevFormData) => ({
                                         ...prevFormData,
