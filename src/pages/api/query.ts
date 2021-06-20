@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import nodemailer from 'nodemailer';
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+const QueryApi = async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method == 'POST') {
         try {
             console.log(req.body);
@@ -41,3 +41,5 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     res.end();
 };
+
+export default QueryApi;
