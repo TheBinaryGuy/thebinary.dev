@@ -1,12 +1,7 @@
 module.exports = {
     root: true,
     plugins: ['unused-imports', 'tailwindcss'],
-    extends: [
-        'next/core-web-vitals',
-        'prettier',
-        'plugin:tailwindcss/recommended',
-        'plugin:@tanstack/eslint-plugin-query/recommended',
-    ],
+    extends: ['next/core-web-vitals', 'prettier', 'plugin:tailwindcss/recommended'],
     settings: {
         tailwindcss: {
             callees: ['cn', 'clsx', 'tw'],
