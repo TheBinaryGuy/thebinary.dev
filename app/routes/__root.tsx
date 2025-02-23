@@ -1,3 +1,4 @@
+import { TooltipProvider } from '@/components/ui/tooltip';
 import appCss from '@/styles/app.css?url';
 import twCss from '@/styles/tailwindcss-animate.css?url';
 
@@ -6,6 +7,7 @@ import '@fontsource-variable/jetbrains-mono';
 
 import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router';
 import { lazy, Suspense, type ReactNode } from 'react';
+import { Toaster } from 'sonner';
 
 const TanStackRouterDevtools =
     process.env.NODE_ENV === 'production'
@@ -70,7 +72,10 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
                 <HeadContent />
             </head>
             <body className='bg-background text-foreground h-full font-sans antialiased'>
-                {children}
+                <TooltipProvider>
+                    {children}
+                    <Toaster />
+                </TooltipProvider>
                 <Scripts />
                 <Suspense>
                     <TanStackRouterDevtools />
