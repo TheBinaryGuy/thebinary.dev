@@ -15,38 +15,16 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { openai } from '@ai-sdk/openai';
+import {
+    explainSql,
+    inputSchema,
+    type TExplanationPartSchema,
+    type TInputSchema,
+} from '@/functions/explain-sql';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { createServerFn } from '@tanstack/start';
-import { generateObject } from 'ai';
 import { Highlight, themes } from 'prism-react-renderer';
 import { useState, type JSX } from 'react';
 import { z } from 'zod';
-
-const explanationPartSchema = z.object({
-    startIndex: z.number(),
-    endIndex: z.number(),
-    explanation: z.string(),
-});
-
-const inputSchema = z.object({
-    query: z.string(),
-    dialect: z.enum(['postgres', 'mysql', 'sqlite', 'mssql', 'other']).default('postgres'),
-});
-
-export const explainSql = createServerFn({
-    method: 'POST',
-})
-    .validator(inputSchema)
-    .handler(async ({ data: { query, dialect } }) => {
-        const { object } = await generateObject({
-            model: openai('gpt-4o-mini'),
-            output: 'array',
-            schema: explanationPartSchema,
-            prompt: `Breakdown and explain the following SQL query (dialect: ${dialect}): ${query}`,
-        });
-        return object;
-    });
 
 export const Route = createFileRoute('/tools/sql-explainer')({
     component: RouteComponent,
@@ -71,9 +49,7 @@ function RouteComponent() {
     });
     const dialect = urlDialect ?? 'postgres';
     const [query, setQuery] = useState('');
-    const [explainerParts, setExplainerParts] = useState<z.infer<typeof explanationPartSchema>[]>(
-        []
-    );
+    const [explainerParts, setExplainerParts] = useState<TExplanationPartSchema[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     const handleExplain = async () => {
@@ -91,79 +67,6 @@ function RouteComponent() {
         } finally {
             setIsLoading(false);
         }
-    };
-
-    const renderQueryWithHighlights = () => {
-        if (!query || explainerParts.length === 0) return null;
-
-        return (
-            <div className='bg-muted rounded-lg p-4 font-mono text-sm leading-relaxed'>
-                <Highlight code={query} language='sql' theme={themes.github}>
-                    {({ tokens, getLineProps, getTokenProps }) => {
-                        let lastIndex = 0;
-                        const elements: JSX.Element[] = [];
-                        const sortedParts = [...explainerParts].sort(
-                            (a, b) => a.startIndex - b.startIndex
-                        );
-
-                        tokens.forEach((line, lineIdx) => {
-                            const lineElements: JSX.Element[] = [];
-                            let currentPosition = lastIndex;
-
-                            line.forEach((token, tokenIdx) => {
-                                const tokenText = token.content;
-                                const tokenStart = currentPosition;
-                                const tokenEnd = tokenStart + tokenText.length;
-
-                                const overlappingParts = sortedParts.filter(
-                                    part => part.startIndex < tokenEnd && part.endIndex > tokenStart
-                                );
-
-                                if (overlappingParts.length > 0) {
-                                    lineElements.push(
-                                        <Tooltip key={`${lineIdx}-${tokenIdx}`}>
-                                            <TooltipTrigger asChild>
-                                                <span
-                                                    {...getTokenProps({ token, key: tokenIdx })}
-                                                    className='border-primary cursor-help border-b-2 border-dotted text-inherit'
-                                                />
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                <p className='max-w-[300px]'>
-                                                    {overlappingParts[0].explanation}
-                                                </p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    );
-                                } else {
-                                    lineElements.push(
-                                        <span
-                                            key={`${lineIdx}-${tokenIdx}`}
-                                            {...getTokenProps({ token, key: tokenIdx })}
-                                        />
-                                    );
-                                }
-
-                                currentPosition = tokenEnd;
-                            });
-
-                            elements.push(
-                                <div
-                                    key={lineIdx}
-                                    {...getLineProps({ line, key: lineIdx })}
-                                    className='px-4'>
-                                    {lineElements}
-                                </div>
-                            );
-
-                            lastIndex = currentPosition;
-                        });
-
-                        return elements;
-                    }}
-                </Highlight>
-            </div>
-        );
     };
 
     return (
@@ -192,9 +95,7 @@ function RouteComponent() {
                                     onValueChange={val => {
                                         navigate({
                                             search: {
-                                                dialect: val as z.infer<
-                                                    typeof inputSchema
-                                                >['dialect'],
+                                                dialect: val as TInputSchema['dialect'],
                                             },
                                         });
                                     }}>
@@ -220,7 +121,91 @@ function RouteComponent() {
                             <div className='mt-8 space-y-6'>
                                 <div>
                                     <h3 className='mb-3 text-lg font-semibold'>Explained Query</h3>
-                                    {renderQueryWithHighlights()}
+                                    <div className='bg-muted rounded-lg p-4 font-mono text-sm leading-relaxed'>
+                                        <Highlight
+                                            code={query}
+                                            language='sql'
+                                            theme={themes.github}>
+                                            {({ tokens, getLineProps, getTokenProps }) => {
+                                                let lastIndex = 0;
+                                                const elements: JSX.Element[] = [];
+                                                const sortedParts = [...explainerParts].sort(
+                                                    (a, b) => a.startIndex - b.startIndex
+                                                );
+
+                                                tokens.forEach((line, lineIdx) => {
+                                                    const lineElements: JSX.Element[] = [];
+                                                    let currentPosition = lastIndex;
+
+                                                    line.forEach((token, tokenIdx) => {
+                                                        const tokenText = token.content;
+                                                        const tokenStart = currentPosition;
+                                                        const tokenEnd =
+                                                            tokenStart + tokenText.length;
+
+                                                        const overlappingParts = sortedParts.filter(
+                                                            part =>
+                                                                part.startIndex < tokenEnd &&
+                                                                part.endIndex > tokenStart
+                                                        );
+
+                                                        if (overlappingParts.length > 0) {
+                                                            lineElements.push(
+                                                                <Tooltip
+                                                                    key={`${lineIdx}-${tokenIdx}`}>
+                                                                    <TooltipTrigger asChild>
+                                                                        <span
+                                                                            {...getTokenProps({
+                                                                                token,
+                                                                                key: tokenIdx,
+                                                                            })}
+                                                                            className='border-primary cursor-help border-b-2 border-dotted text-inherit'
+                                                                        />
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent>
+                                                                        <p className='max-w-[300px]'>
+                                                                            {
+                                                                                overlappingParts[0]
+                                                                                    .explanation
+                                                                            }
+                                                                        </p>
+                                                                    </TooltipContent>
+                                                                </Tooltip>
+                                                            );
+                                                        } else {
+                                                            lineElements.push(
+                                                                <span
+                                                                    key={`${lineIdx}-${tokenIdx}`}
+                                                                    {...getTokenProps({
+                                                                        token,
+                                                                        key: tokenIdx,
+                                                                    })}
+                                                                />
+                                                            );
+                                                        }
+
+                                                        currentPosition = tokenEnd;
+                                                    });
+
+                                                    elements.push(
+                                                        <div
+                                                            key={lineIdx}
+                                                            {...getLineProps({
+                                                                line,
+                                                                key: lineIdx,
+                                                            })}
+                                                            className='px-4'>
+                                                            {lineElements}
+                                                        </div>
+                                                    );
+
+                                                    lastIndex = currentPosition;
+                                                });
+
+                                                return elements;
+                                            }}
+                                        </Highlight>
+                                    </div>
                                     <p className='text-muted-foreground mt-2 text-sm'>
                                         Hover over the underlined parts to see explanations.
                                     </p>
