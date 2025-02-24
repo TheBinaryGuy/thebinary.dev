@@ -24,7 +24,7 @@ export const explainSql = createServerFn({
     .validator(inputSchema)
     .handler(async ({ data: { query, dialect } }) => {
         const { object } = await generateObject({
-            model: openai('gpt-4o-mini'),
+            model: openai('gpt-4o'),
             output: 'array',
             schema: explanationPartSchema,
             prompt: `Breakdown and explain the following SQL query (dialect: ${dialect}): ${query}`,
